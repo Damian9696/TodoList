@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="todo"
+            type="com.example.todolist.data.Todo" />
+
+        <variable
+            name="todoRowListener"
+            type="com.example.todolist.adapters.TodoRowListener" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        todo="@{todo}"
+        todoRowListener="@{todoRowListener}"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:id="@+id/todoImage_imageView"
+            loadImageFromUrl="@{todo.iconUrl}"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:layout_constraintBottom_toBottomOf="@id/todoDate_textView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/todoTitle_textView" />
+
+        <TextView
+            android:id="@+id/todoTitle_textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{todo.title}"
+            app:layout_constraintBottom_toTopOf="@id/todoDate_textView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/todoImage_imageView"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Title" />
+
+        <TextView
+            android:id="@+id/todoDate_textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{todo.description}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/todoImage_imageView"
+            app:layout_constraintTop_toBottomOf="@id/todoTitle_textView"
+            tools:text="01-01-2021 12:00" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
