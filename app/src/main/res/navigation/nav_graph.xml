@@ -35,5 +35,8 @@
         <argument
             android:name="configureAction"
             app:argType="com.example.todolist.utils.ConfigureAction" />
+        <argument
+            android:name="todo"
+            app:argType="com.example.todolist.data.Todo" />
     </fragment>
 </navigation>

@@ -7,8 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.todolist.data.Todo
 import com.example.todolist.databinding.ConfigureTodoFragmentBinding
+import com.example.todolist.utils.ConfigureAction
+import com.example.todolist.utils.ConfigureAction.ADD
+import com.example.todolist.utils.ConfigureAction.UPDATE
 import com.example.todolist.utils.Constants
 import com.example.todolist.view_models.ConfigureTodoViewModel
 import com.google.firebase.firestore.ktx.firestore
@@ -18,18 +22,23 @@ import timber.log.Timber
 
 class ConfigureTodo : Fragment() {
 
-
     private var _binding: ConfigureTodoFragmentBinding? = null
     private val binding get() = _binding!!
 
     private val configureTodoViewModel by inject<ConfigureTodoViewModel>()
+    private val args: ConfigureTodoArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        passArgs()
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             moveToListOfTodo()
         }
+    }
 
+    private fun passArgs() {
+        configureTodoViewModel.setConfigureAction(args.configureAction)
+        configureTodoViewModel.insertTodoForUpdate(args.todo)
     }
 
     private fun moveToListOfTodo() {
@@ -46,27 +55,55 @@ class ConfigureTodo : Fragment() {
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        initBackImageView()
+        subscribeObservers()
+    }
 
-        binding.addTodoButton.setOnClickListener {
+    private fun initBackImageView() {
+        binding.backImageView.setOnClickListener {
+            moveToListOfTodo()
+        }
+    }
+
+    private fun initConfigureButton(configureAction: ConfigureAction) {
+        binding.configureTodoButton.setOnClickListener {
 
             val title = binding.titleTextInputEditText.text.toString()
             val description = binding.descriptionTextInputEditText.text.toString()
             val iconUrl = binding.iconUrlTextInputEditText.text.toString()
 
-            //add toto logic
-            //update todo logic
+            when (configureAction) {
+                ADD -> {
+                    configureTodoViewModel.addTodo(title, description, iconUrl)
+                }
+                UPDATE -> {
+                    configureTodoViewModel.updateTodo(title, description, iconUrl)
+                }
+            }
+
         }
-
-        binding.backImageView.setOnClickListener {
-            moveToListOfTodo()
-        }
-
-        subscribeObservers()
-
     }
 
     private fun subscribeObservers() {
+        configureTodoViewModel.configureAction.observe(viewLifecycleOwner) {
+            it?.let {
+                initConfigureButton(it)
+                configureAppearance(it)
+            }
+        }
+    }
 
+    private fun configureAppearance(it: ConfigureAction) {
+        when (it) {
+            ADD -> {
+                binding.titleTextView.text = "Create new todo"
+                binding.configureTodoButton.text = "Add"
+            }
+            UPDATE -> {
+                binding.titleTextView.text = "Update todo"
+                binding.configureTodoButton.text = "Update"
+            }
+        }
     }
 
     override fun onDestroyView() {

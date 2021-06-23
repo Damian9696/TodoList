@@ -16,6 +16,7 @@ import com.example.todolist.utils.Constants.TODO_ID_PROPERTY
 import com.example.todolist.utils.Resource
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query.Direction.ASCENDING
+import com.google.firebase.firestore.ServerTimestamp
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -50,8 +51,15 @@ class FirestoreTodoListRepository : TodoListRepository, OnLastVisibleTodoCallbac
         iconUrl: String
     ): MutableLiveData<Resource<Todo>> {
         val id = firestore.collection(TODO_COLLECTION).document().id
-        val todo = Todo(id = id, title = title, description = description, iconUrl = iconUrl)
-        val mutableRresource = MutableLiveData<Resource<Todo>>()
+        val timestamp = System.currentTimeMillis().toString()
+        val todo = Todo(
+            id = id,
+            title = title,
+            description = description,
+            iconUrl = iconUrl,
+            timestamp = timestamp
+        )
+        val mutableResource = MutableLiveData<Resource<Todo>>()
 
         val todoMap = hashMapOf(
             TODO_ID_PROPERTY to todo.id,
@@ -62,27 +70,34 @@ class FirestoreTodoListRepository : TodoListRepository, OnLastVisibleTodoCallbac
         )
 
         var resource: Resource<Todo> = Resource.Loading()
-        mutableRresource.value = resource
+        mutableResource.value = resource
 
         firestore.collection(TODO_COLLECTION).document(id).set(todoMap)
             .addOnSuccessListener {
                 resource = Resource.Success(todo)
-                mutableRresource.value = resource
+                mutableResource.value = resource
             }
             .addOnFailureListener { e ->
                 resource = Resource.Error(e.message.toString())
-                mutableRresource.value = resource
+                mutableResource.value = resource
             }
 
-        return mutableRresource
+        return mutableResource
     }
 
-    override fun updateTodo(todo: Todo): MutableLiveData<Resource<Todo>> {
+    override fun updateTodo(
+        id: String,
+        title: String,
+        description: String,
+        iconUrl: String,
+        timestamp: String
+    ): MutableLiveData<Resource<Todo>> {
         val todo = Todo(
-            id = todo.id,
-            title = todo.title,
-            description = todo.description,
-            iconUrl = todo.iconUrl
+            id = id,
+            title = title,
+            description = description,
+            iconUrl = iconUrl,
+            timestamp = timestamp
         )
         val mutableResource = MutableLiveData<Resource<Todo>>()
 

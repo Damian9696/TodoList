@@ -124,7 +124,12 @@ class TodoList : Fragment() {
 
     private fun initFab() {
         binding.addTodoFab.setOnClickListener {
-            findNavController().navigate(TodoListDirections.actionTodoListToAddTodo(ConfigureAction.ADD))
+            findNavController().navigate(
+                TodoListDirections.actionTodoListToAddTodo(
+                    ConfigureAction.ADD,
+                    Todo()
+                )
+            )
         }
     }
 

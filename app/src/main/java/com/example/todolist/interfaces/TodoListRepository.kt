@@ -8,6 +8,6 @@ import com.example.todolist.utils.Resource
 interface TodoListRepository {
     fun getTodoListLiveData(): TodoListLiveData?
     fun addTodo(title: String, description: String, iconUrl: String): MutableLiveData<Resource<Todo>>
-    fun updateTodo(todo: Todo): MutableLiveData<Resource<Todo>>
+    fun updateTodo(id:String, title: String, description: String, iconUrl: String, timestamp: String): MutableLiveData<Resource<Todo>>
     fun deleteTodo(todo: Todo): MutableLiveData<Resource<Todo>>
 }
