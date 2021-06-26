@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.todolist.data.Todo
@@ -13,11 +14,10 @@ import com.example.todolist.databinding.ConfigureTodoFragmentBinding
 import com.example.todolist.utils.ConfigureAction
 import com.example.todolist.utils.ConfigureAction.ADD
 import com.example.todolist.utils.ConfigureAction.UPDATE
-import com.example.todolist.utils.Constants
+import com.example.todolist.utils.Response
 import com.example.todolist.view_models.ConfigureTodoViewModel
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import org.koin.android.ext.android.inject
+import com.google.android.material.snackbar.Snackbar
+import org.koin.androidx.viewmodel.ext.android.stateViewModel
 import timber.log.Timber
 
 class ConfigureTodo : Fragment() {
@@ -25,20 +25,15 @@ class ConfigureTodo : Fragment() {
     private var _binding: ConfigureTodoFragmentBinding? = null
     private val binding get() = _binding!!
 
-    private val configureTodoViewModel by inject<ConfigureTodoViewModel>()
     private val args: ConfigureTodoArgs by navArgs()
+    private val configureTodoViewModel: ConfigureTodoViewModel by stateViewModel(state = { args.toBundle() })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        passArgs()
+
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             moveToListOfTodo()
         }
-    }
-
-    private fun passArgs() {
-        configureTodoViewModel.setConfigureAction(args.configureAction)
-        configureTodoViewModel.insertTodoForUpdate(args.todo)
     }
 
     private fun moveToListOfTodo() {
@@ -75,9 +70,19 @@ class ConfigureTodo : Fragment() {
             when (configureAction) {
                 ADD -> {
                     configureTodoViewModel.addTodo(title, description, iconUrl)
+                        .observe(viewLifecycleOwner) {
+                            it?.let { response ->
+                                handleResponse(response)
+                            }
+                        }
                 }
                 UPDATE -> {
                     configureTodoViewModel.updateTodo(title, description, iconUrl)
+                        .observe(viewLifecycleOwner) {
+                            it?.let { response ->
+                                handleResponse(response)
+                            }
+                        }
                 }
             }
 
@@ -91,6 +96,33 @@ class ConfigureTodo : Fragment() {
                 configureAppearance(it)
             }
         }
+
+        configureTodoViewModel.todoForUpdateIfConfigureActionIsUpdate.observe(viewLifecycleOwner) {
+            it?.let { todo ->
+                binding.titleTextInputEditText.setText(todo.title.orEmpty())
+                binding.descriptionTextInputEditText.setText(todo.description.orEmpty())
+                binding.iconUrlTextInputEditText.setText(todo.iconUrl.orEmpty())
+            }
+        }
+    }
+
+    private fun handleResponse(todoResponse: Response<Todo>) {
+        when (todoResponse) {
+            is Response.Loading -> {
+                binding.progressBar.isVisible = true
+            }
+            is Response.Success -> {
+                binding.progressBar.isVisible = false
+                Snackbar.make(requireView(), "Todo added!", Snackbar.LENGTH_LONG)
+                    .show()
+            }
+            is Response.Error -> {
+                binding.progressBar.isVisible = false
+                Snackbar.make(requireView(), "Todo not added! ${todoResponse.message}", Snackbar.LENGTH_LONG)
+                    .show()
+            }
+        }
+
     }
 
     private fun configureAppearance(it: ConfigureAction) {

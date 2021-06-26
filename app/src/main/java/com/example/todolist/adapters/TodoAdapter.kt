@@ -3,18 +3,19 @@ package com.example.todolist.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todolist.data.Todo
 import com.example.todolist.databinding.TodoRowLayoutBinding
 import com.example.todolist.utils.GenericDiffUtil
 import com.example.todolist.utils.TodoRowAction
+import timber.log.Timber
 
 class TodoAdapter(private val todoRowListener: TodoRowListener) :
-    RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
+    ListAdapter<Todo,
+            TodoAdapter.TodoViewHolder>(DataItemDiffCallback()) {
 
-    private var listOfTodo = emptyList<Todo>()
-
-    class TodoViewHolder(private val binding: TodoRowLayoutBinding) :
+    class TodoViewHolder private constructor(private val binding: TodoRowLayoutBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(todo: Todo, todoRowListener: TodoRowListener) {
@@ -37,22 +38,23 @@ class TodoAdapter(private val todoRowListener: TodoRowListener) :
     }
 
     override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
-        val todo = listOfTodo[position]
-        holder.bind(todo, todoRowListener)
+        val item = getItem(position)
+        holder.bind(item, todoRowListener)
     }
 
-    override fun getItemCount(): Int {
-        return listOfTodo.size
+
+}
+
+class DataItemDiffCallback : DiffUtil.ItemCallback<Todo>() {
+    override fun areItemsTheSame(oldItem: Todo, newItem: Todo): Boolean {
+        return oldItem.id == newItem.id
     }
 
-    fun setData(newListOfTodo: List<Todo>) {
-        val todoDiffUtil = GenericDiffUtil(listOfTodo, newListOfTodo)
-        val diffResult = DiffUtil.calculateDiff(todoDiffUtil)
-        listOfTodo = newListOfTodo
-        diffResult.dispatchUpdatesTo(this)
+    override fun areContentsTheSame(oldItem: Todo, newItem: Todo): Boolean {
+        return oldItem == newItem
     }
 }
 
-class TodoRowListener(val listener: (todoId: String?, rowAction: TodoRowAction) -> Unit) {
-    fun onTouch(todo: Todo, rowAction: TodoRowAction) = listener(todo.id, rowAction)
+class TodoRowListener(val listener: (todoId: Todo, rowAction: TodoRowAction) -> Unit) {
+    fun onTouch(todo: Todo, rowAction: TodoRowAction) = listener(todo, rowAction)
 }

@@ -6,6 +6,7 @@ import com.example.todolist.utils.Constants.LIMIT
 import com.example.todolist.interfaces.OnLastTodoReachedCallback
 import com.example.todolist.interfaces.OnLastVisibleTodoCallback
 import com.google.firebase.firestore.*
+import timber.log.Timber
 
 class TodoListLiveData(
     private val query: Query,
@@ -18,6 +19,7 @@ class TodoListLiveData(
 
     override fun onActive() {
         listenerRegistration = query.addSnapshotListener(this)
+
     }
 
     override fun onInactive() {

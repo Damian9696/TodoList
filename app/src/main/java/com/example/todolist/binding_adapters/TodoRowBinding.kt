@@ -33,6 +33,11 @@ class TodoRowBinding {
                 return@setOnLongClickListener true
 
             }
+            this.setOnClickListener {
+                if (todoRowListener != null && todo != null) {
+                    todoRowListener.onTouch(todo, TodoRowAction.CLICK)
+                }
+            }
         }
     }
 }

@@ -1,49 +1,55 @@
 package com.example.todolist.view_models
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.example.todolist.data.Todo
 import com.example.todolist.data.repository.FirestoreTodoListRepository
 import com.example.todolist.utils.ConfigureAction
-import com.example.todolist.utils.Resource
+import com.example.todolist.utils.Response
 
-class ConfigureTodoViewModel(private val firestoreTodoListRepository: FirestoreTodoListRepository) :
-    ViewModel() {
+class ConfigureTodoViewModel(
+    private val savedStateHandle: SavedStateHandle,
+    private val firestoreTodoListRepository: FirestoreTodoListRepository,
+) : ViewModel() {
 
-    lateinit var todoForUpdate: Todo
+    private val todoForUpdateArgs: Todo
+        get() = savedStateHandle.get<Todo>(TODO_KEY)!!
 
-    private val _resource = MutableLiveData<Resource<Todo>>()
-    val resource: LiveData<Resource<Todo>> get() = _resource
+    private val configureActionArgs: ConfigureAction
+        get() = savedStateHandle.get<ConfigureAction>(CONFIGURE_ACTION_KEY)!!
 
-    private val _configureAction = MutableLiveData<ConfigureAction>()
+    private val _configureAction = MutableLiveData(configureActionArgs)
     val configureAction: LiveData<ConfigureAction> get() = _configureAction
 
-    fun addTodo(title: String, description: String, iconUrl: String): LiveData<Resource<Todo>> {
-        _resource.value = firestoreTodoListRepository.addTodo(title, description, iconUrl).value
-        return resource
+    private val _todoForUpdate = MutableLiveData(todoForUpdateArgs)
+
+    val todoForUpdateIfConfigureActionIsUpdate = Transformations.map(_todoForUpdate) {
+        if (configureActionArgs == ConfigureAction.UPDATE) {
+            return@map _todoForUpdate.value
+        } else {
+            return@map null
+        }
+    }
+
+    fun addTodo(title: String, description: String, iconUrl: String): LiveData<Response<Todo>> {
+        return firestoreTodoListRepository.addTodo(title, description, iconUrl)
     }
 
     fun updateTodo(
         title: String,
         description: String,
         iconUrl: String
-    ): LiveData<Resource<Todo>> {
-        _resource.value = firestoreTodoListRepository.updateTodo(
-            todoForUpdate.id!!,
+    ): LiveData<Response<Todo>> {
+        return firestoreTodoListRepository.updateTodo(
+            todoForUpdateArgs.id!!,
             title,
             description,
             iconUrl,
-            todoForUpdate.timestamp!!
-        ).value
-        return resource
+            todoForUpdateArgs.timestamp!!
+        )
     }
 
-    fun setConfigureAction(configureAction: ConfigureAction) {
-        _configureAction.value = configureAction
-    }
-
-    fun insertTodoForUpdate(todo: Todo) {
-        todoForUpdate = todo
+    companion object {
+        const val CONFIGURE_ACTION_KEY = "configureAction"
+        const val TODO_KEY = "todo"
     }
 }

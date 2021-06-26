@@ -71,22 +71,24 @@ dependencies {
     //Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
-    // Koin for Kotlin
+    // Koin core features
     implementation "io.insert-koin:koin-core:$koin_version"
-    // Koin extended & experimental features
-    implementation "io.insert-koin:koin-core-ext:$koin_version"
-    // Koin for Unit tests
+    // Koin test features
     testImplementation "io.insert-koin:koin-test:$koin_version"
-    // Koin AndroidX Scope features
-    implementation "io.insert-koin:koin-androidx-scope:$koin_version"
-    // Koin AndroidX ViewModel features
-    implementation "io.insert-koin:koin-androidx-viewmodel:$koin_version"
-    // Koin AndroidX Fragment features
-    implementation "io.insert-koin:koin-androidx-fragment:$koin_version"
-    // Koin AndroidX WorkManager
+
+    // Koin for JUnit 4
+    testImplementation "io.insert-koin:koin-test-junit4:$koin_version"
+    // Koin for JUnit 5
+    testImplementation "io.insert-koin:koin-test-junit5:$koin_version"
+
+    // Koin main features for Android (Scope,ViewModel ...)
+    implementation "io.insert-koin:koin-android:$koin_version"
+    // Koin Java Compatibility
+    implementation "io.insert-koin:koin-android-compat:$koin_version"
+    // Koin for Jetpack WorkManager
     implementation "io.insert-koin:koin-androidx-workmanager:$koin_version"
-    // Koin AndroidX Experimental features
-    implementation "io.insert-koin:koin-androidx-ext:$koin_version"
+    // Koin for Jetpack Compose
+    implementation "io.insert-koin:koin-androidx-compose:$koin_version"
 
     //Paging
     implementation("androidx.paging:paging-runtime-ktx:$paging_version")
@@ -100,6 +102,8 @@ dependencies {
 
     //Coil
     implementation "io.coil-kt:coil:1.2.2"
+
+    implementation "com.github.hadilq:live-event:1.2.3"
 
     //Tests
     testImplementation 'junit:junit:4.+'

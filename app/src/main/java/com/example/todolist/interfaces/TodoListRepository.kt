@@ -1,13 +1,14 @@
 package com.example.todolist.interfaces
 
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
 import com.example.todolist.data.Todo
 import com.example.todolist.data.TodoListLiveData
-import com.example.todolist.utils.Resource
+import com.example.todolist.utils.Response
+import com.hadilq.liveevent.LiveEvent
 
 interface TodoListRepository {
     fun getTodoListLiveData(): TodoListLiveData?
-    fun addTodo(title: String, description: String, iconUrl: String): MutableLiveData<Resource<Todo>>
-    fun updateTodo(id:String, title: String, description: String, iconUrl: String, timestamp: String): MutableLiveData<Resource<Todo>>
-    fun deleteTodo(todo: Todo): MutableLiveData<Resource<Todo>>
+    fun addTodo(title: String, description: String, iconUrl: String): LiveData<Response<Todo>>
+    fun updateTodo(id:String, title: String, description: String, iconUrl: String, timestamp: String): LiveData<Response<Todo>>
+    fun deleteTodo(todo: Todo): LiveData<Response<Todo>>
 }

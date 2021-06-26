@@ -1,5 +1,6 @@
 package com.example.todolist.data.repository
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.todolist.data.Todo
 import com.example.todolist.utils.Constants.LIMIT
@@ -13,26 +14,28 @@ import com.example.todolist.utils.Constants.TODO_DATE_PROPERTY
 import com.example.todolist.utils.Constants.TODO_DESCRIPTION_PROPERTY
 import com.example.todolist.utils.Constants.TODO_ICON_URL_PROPERTY
 import com.example.todolist.utils.Constants.TODO_ID_PROPERTY
-import com.example.todolist.utils.Resource
+import com.example.todolist.utils.Response
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query.Direction.ASCENDING
-import com.google.firebase.firestore.ServerTimestamp
+import com.google.firebase.firestore.Query.Direction.DESCENDING
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-class FirestoreTodoListRepository : TodoListRepository, OnLastVisibleTodoCallback,
+class FirestoreTodoListRepository(private val firestore: FirebaseFirestore) : TodoListRepository, OnLastVisibleTodoCallback,
     OnLastTodoReachedCallback {
-
-    private val firestore = Firebase.firestore
 
     private var isLastTodoReached = false
     private var lastVisibleTodo: DocumentSnapshot? = null
+
+    private val _response = MutableLiveData<Response<Todo>>()
+    private val response: LiveData<Response<Todo>> get() = _response
 
     override fun getTodoListLiveData(): TodoListLiveData? {
 
         val collectionReference = firestore.collection(TODO_COLLECTION)
         var query = collectionReference.orderBy(
-            TODO_TITLE_PROPERTY,
+            TODO_DATE_PROPERTY,
             ASCENDING
         ).limit(LIMIT.toLong())
 
@@ -49,7 +52,7 @@ class FirestoreTodoListRepository : TodoListRepository, OnLastVisibleTodoCallbac
         title: String,
         description: String,
         iconUrl: String
-    ): MutableLiveData<Resource<Todo>> {
+    ): LiveData<Response<Todo>> {
         val id = firestore.collection(TODO_COLLECTION).document().id
         val timestamp = System.currentTimeMillis().toString()
         val todo = Todo(
@@ -59,7 +62,7 @@ class FirestoreTodoListRepository : TodoListRepository, OnLastVisibleTodoCallbac
             iconUrl = iconUrl,
             timestamp = timestamp
         )
-        val mutableResource = MutableLiveData<Resource<Todo>>()
+
 
         val todoMap = hashMapOf(
             TODO_ID_PROPERTY to todo.id,
@@ -69,20 +72,20 @@ class FirestoreTodoListRepository : TodoListRepository, OnLastVisibleTodoCallbac
             TODO_ICON_URL_PROPERTY to todo.iconUrl
         )
 
-        var resource: Resource<Todo> = Resource.Loading()
-        mutableResource.value = resource
+        var response: Response<Todo> = Response.Loading(todo)
+        _response.value = response
 
         firestore.collection(TODO_COLLECTION).document(id).set(todoMap)
             .addOnSuccessListener {
-                resource = Resource.Success(todo)
-                mutableResource.value = resource
+                response = Response.Success(todo)
+                _response.value = response
             }
             .addOnFailureListener { e ->
-                resource = Resource.Error(e.message.toString())
-                mutableResource.value = resource
+                response = Response.Error(e.message.toString())
+                _response.value = response
             }
 
-        return mutableResource
+        return this.response
     }
 
     override fun updateTodo(
@@ -91,7 +94,7 @@ class FirestoreTodoListRepository : TodoListRepository, OnLastVisibleTodoCallbac
         description: String,
         iconUrl: String,
         timestamp: String
-    ): MutableLiveData<Resource<Todo>> {
+    ): LiveData<Response<Todo>> {
         val todo = Todo(
             id = id,
             title = title,
@@ -99,7 +102,6 @@ class FirestoreTodoListRepository : TodoListRepository, OnLastVisibleTodoCallbac
             iconUrl = iconUrl,
             timestamp = timestamp
         )
-        val mutableResource = MutableLiveData<Resource<Todo>>()
 
         val todoMap = mapOf(
             TODO_ID_PROPERTY to todo.id,
@@ -109,39 +111,38 @@ class FirestoreTodoListRepository : TodoListRepository, OnLastVisibleTodoCallbac
             TODO_ICON_URL_PROPERTY to todo.iconUrl
         )
 
-        var resource: Resource<Todo> = Resource.Loading()
-        mutableResource.value = resource
+        var response: Response<Todo> = Response.Loading(todo)
+        _response.value = response
 
         firestore.collection(TODO_COLLECTION).document(todo.id!!).update(todoMap)
             .addOnSuccessListener {
-                resource = Resource.Success(todo)
-                mutableResource.value = resource
+                response = Response.Success(todo)
+                _response.value = response
             }
             .addOnFailureListener { e ->
-                resource = Resource.Error(e.message.toString())
-                mutableResource.value = resource
+                response = Response.Error(e.message.toString())
+                _response.value = response
             }
 
-        return mutableResource
+        return this.response
     }
 
-    override fun deleteTodo(todo: Todo): MutableLiveData<Resource<Todo>> {
-        val mutableResource = MutableLiveData<Resource<Todo>>()
+    override fun deleteTodo(todo: Todo): LiveData<Response<Todo>> {
 
-        var resource: Resource<Todo> = Resource.Loading()
-        mutableResource.value = resource
+        var response: Response<Todo> = Response.Loading(todo)
+        _response.value = response
 
         firestore.collection(TODO_COLLECTION).document(todo.id!!).delete()
             .addOnSuccessListener {
-                resource = Resource.Success(todo)
-                mutableResource.value = resource
+                response = Response.Success(todo)
+                _response.value = response
             }
             .addOnFailureListener { e ->
-                resource = Resource.Error(e.message.toString())
-                mutableResource.value = resource
+                response = Response.Error(e.message.toString())
+                _response.value = response
             }
 
-        return mutableResource
+        return this.response
     }
 
 
