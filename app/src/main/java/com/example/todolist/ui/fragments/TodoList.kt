@@ -15,11 +15,10 @@ import com.example.todolist.adapters.TodoAdapter
 import com.example.todolist.adapters.TodoRowListener
 import com.example.todolist.data.Todo
 import com.example.todolist.databinding.TodoListFragmentBinding
-import com.example.todolist.utils.ConfigureAction
+import com.example.todolist.utils.enums.ConfigureAction
 import com.example.todolist.utils.Response
-import com.example.todolist.utils.TodoRowAction
-import com.example.todolist.utils.TodoRowAction.CLICK
-import com.example.todolist.utils.TodoRowAction.LONG_CLICK
+import com.example.todolist.utils.enums.TodoRowAction.CLICK
+import com.example.todolist.utils.enums.TodoRowAction.LONG_CLICK
 import com.example.todolist.view_models.TodoListViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -194,6 +193,11 @@ class TodoList : Fragment() {
                             dialog.dismiss()
                         }
                         .setPositiveButton("Yes") { dialog, _ ->
+                            todoListViewModel.deleteTodo(todo).observe(viewLifecycleOwner) {
+                                it?.let { response ->
+                                    handleResponse(response)
+                                }
+                            }
                             dialog.dismiss()
                         }
                         .show()
@@ -201,6 +205,28 @@ class TodoList : Fragment() {
             }
         })
         binding.listOfTodoRecyclerView.adapter = todoAdapter
+    }
+
+    private fun handleResponse(todoResponse: Response<Todo>) {
+        when (todoResponse) {
+            is Response.Loading -> {
+                binding.progressBar.isVisible = true
+            }
+            is Response.Success -> {
+                binding.progressBar.isVisible = false
+                Snackbar.make(requireView(), "Todo deleted!", Snackbar.LENGTH_LONG)
+                    .show()
+            }
+            is Response.Error -> {
+                binding.progressBar.isVisible = false
+                Snackbar.make(
+                    requireView(),
+                    "Todo not deleted! ${todoResponse.message}",
+                    Snackbar.LENGTH_LONG
+                )
+                    .show()
+            }
+        }
     }
 
     private fun initFab() {

@@ -76,6 +76,8 @@ dependencies {
     // Koin test features
     testImplementation "io.insert-koin:koin-test:$koin_version"
 
+    // Koin testing tools
+    testImplementation "io.insert-koin:koin-test:$koin_version"
     // Koin for JUnit 4
     testImplementation "io.insert-koin:koin-test-junit4:$koin_version"
     // Koin for JUnit 5
@@ -104,6 +106,12 @@ dependencies {
     implementation "io.coil-kt:coil:1.2.2"
 
     implementation "com.github.hadilq:live-event:1.2.3"
+
+
+    testImplementation 'org.mockito:mockito-core:3.11.2'
+    testImplementation "org.mockito:mockito-inline:3.11.2"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
+    testImplementation 'android.arch.core:core-testing:1.1.1'
 
     //Tests
     testImplementation 'junit:junit:4.+'

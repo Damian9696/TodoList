@@ -1,4 +1,4 @@
-package com.example.todolist.utils
+package com.example.todolist.utils.enums
 
 enum class ConfigureAction {
     ADD,

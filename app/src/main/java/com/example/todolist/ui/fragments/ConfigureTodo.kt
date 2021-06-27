@@ -11,14 +11,15 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.todolist.data.Todo
 import com.example.todolist.databinding.ConfigureTodoFragmentBinding
-import com.example.todolist.utils.ConfigureAction
-import com.example.todolist.utils.ConfigureAction.ADD
-import com.example.todolist.utils.ConfigureAction.UPDATE
+import com.example.todolist.utils.enums.ConfigureAction
+import com.example.todolist.utils.enums.ConfigureAction.ADD
+import com.example.todolist.utils.enums.ConfigureAction.UPDATE
 import com.example.todolist.utils.Response
+import com.example.todolist.utils.enums.ValidateAction.*
 import com.example.todolist.view_models.ConfigureTodoViewModel
+import com.example.todolist.view_models.ValidationWithConfigureAction
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.stateViewModel
-import timber.log.Timber
 
 class ConfigureTodo : Fragment() {
 
@@ -51,6 +52,7 @@ class ConfigureTodo : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initBackImageView()
+        initConfigureButton()
         subscribeObservers()
     }
 
@@ -60,48 +62,113 @@ class ConfigureTodo : Fragment() {
         }
     }
 
-    private fun initConfigureButton(configureAction: ConfigureAction) {
+    private fun initConfigureButton() {
         binding.configureTodoButton.setOnClickListener {
 
             val title = binding.titleTextInputEditText.text.toString()
             val description = binding.descriptionTextInputEditText.text.toString()
             val iconUrl = binding.iconUrlTextInputEditText.text.toString()
 
-            when (configureAction) {
-                ADD -> {
-                    configureTodoViewModel.addTodo(title, description, iconUrl)
-                        .observe(viewLifecycleOwner) {
-                            it?.let { response ->
-                                handleResponse(response)
-                            }
-                        }
-                }
-                UPDATE -> {
-                    configureTodoViewModel.updateTodo(title, description, iconUrl)
-                        .observe(viewLifecycleOwner) {
-                            it?.let { response ->
-                                handleResponse(response)
-                            }
-                        }
-                }
-            }
-
+            configureTodoViewModel.validateTitle(title)
+            configureTodoViewModel.validateDescription(description)
         }
     }
 
     private fun subscribeObservers() {
-        configureTodoViewModel.configureAction.observe(viewLifecycleOwner) {
-            it?.let {
-                initConfigureButton(it)
-                configureAppearance(it)
+        configureTodoViewModel.validateTitle.observe(viewLifecycleOwner) {
+            it?.let { validateAction ->
+                when (validateAction) {
+                    SUCCESS -> {
+                        binding.titleTextInput.isErrorEnabled = false
+                        binding.titleTextInput.error = ""
+                    }
+                    TEXT_TOO_LONG -> {
+                        binding.titleTextInput.isErrorEnabled = true
+                        binding.titleTextInput.error = "Text is too long"
+                    }
+                    TEXT_EMPTY -> {
+                        binding.titleTextInput.isErrorEnabled = true
+                        binding.titleTextInput.error = "Text is empty"
+                    }
+                }
             }
         }
 
-        configureTodoViewModel.todoForUpdateIfConfigureActionIsUpdate.observe(viewLifecycleOwner) {
+        configureTodoViewModel.validateDescription.observe(viewLifecycleOwner) {
+            it?.let { validateAction ->
+                when (validateAction) {
+                    SUCCESS -> {
+                        binding.descriptionTextInput.isErrorEnabled = false
+                        binding.descriptionTextInput.error = ""
+                    }
+                    TEXT_TOO_LONG -> {
+                        binding.descriptionTextInput.isErrorEnabled = true
+                        binding.descriptionTextInput.error = "Text is too long"
+                    }
+                    TEXT_EMPTY -> {
+                        binding.descriptionTextInput.isErrorEnabled = true
+                        binding.descriptionTextInput.error = "Text is empty"
+                    }
+                }
+            }
+        }
+
+        observeConfigureAction()
+        observeUpdateFieldsIfConfigureActionIsUpdate()
+        observeValidationPass()
+    }
+
+    private fun observeConfigureAction() {
+        configureTodoViewModel.configureAction.observe(viewLifecycleOwner) {
+            it?.let {
+                configureAppearance(it)
+            }
+        }
+    }
+
+    private fun observeUpdateFieldsIfConfigureActionIsUpdate() {
+        configureTodoViewModel.updateFieldsIfConfigureActionIsUpdate.observe(viewLifecycleOwner) {
             it?.let { todo ->
                 binding.titleTextInputEditText.setText(todo.title.orEmpty())
                 binding.descriptionTextInputEditText.setText(todo.description.orEmpty())
                 binding.iconUrlTextInputEditText.setText(todo.iconUrl.orEmpty())
+            }
+        }
+    }
+
+    private fun observeValidationPass() {
+        configureTodoViewModel.validationPass.observe(viewLifecycleOwner) {
+            it?.let { validationWithConfigureAction ->
+                if (validationWithConfigureAction.pass) {
+                    proceedConfigurationPass(validationWithConfigureAction)
+                } else {
+                    Snackbar.make(requireView(), "Validation not pass", Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun proceedConfigurationPass(validationWithConfigureAction: ValidationWithConfigureAction) {
+        val title = binding.titleTextInputEditText.text.toString()
+        val description = binding.descriptionTextInputEditText.text.toString()
+        val iconUrl = binding.iconUrlTextInputEditText.text.toString()
+
+        when (validationWithConfigureAction.configureAction) {
+            ADD -> {
+                configureTodoViewModel.addTodo(title, description, iconUrl)
+                    .observe(viewLifecycleOwner) { nullableResponse ->
+                        nullableResponse?.let { response ->
+                            handleResponse(response)
+                        }
+                    }
+            }
+            UPDATE -> {
+                configureTodoViewModel.updateTodo(title, description, iconUrl)
+                    .observe(viewLifecycleOwner) { nullableResponse ->
+                        nullableResponse?.let { response ->
+                            handleResponse(response)
+                        }
+                    }
             }
         }
     }
@@ -118,11 +185,14 @@ class ConfigureTodo : Fragment() {
             }
             is Response.Error -> {
                 binding.progressBar.isVisible = false
-                Snackbar.make(requireView(), "Todo not added! ${todoResponse.message}", Snackbar.LENGTH_LONG)
+                Snackbar.make(
+                    requireView(),
+                    "Todo not added! ${todoResponse.message}",
+                    Snackbar.LENGTH_LONG
+                )
                     .show()
             }
         }
-
     }
 
     private fun configureAppearance(it: ConfigureAction) {

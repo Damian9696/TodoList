@@ -7,7 +7,7 @@ import coil.load
 import com.example.todolist.R
 import com.example.todolist.adapters.TodoRowListener
 import com.example.todolist.data.Todo
-import com.example.todolist.utils.TodoRowAction
+import com.example.todolist.utils.enums.TodoRowAction
 
 class TodoRowBinding {
     companion object {

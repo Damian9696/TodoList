@@ -7,9 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todolist.data.Todo
 import com.example.todolist.databinding.TodoRowLayoutBinding
-import com.example.todolist.utils.GenericDiffUtil
-import com.example.todolist.utils.TodoRowAction
-import timber.log.Timber
+import com.example.todolist.utils.enums.TodoRowAction
 
 class TodoAdapter(private val todoRowListener: TodoRowListener) :
     ListAdapter<Todo,

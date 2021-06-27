@@ -2,6 +2,7 @@ package com.example.todolist.data.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.todolist.data.Operation
 import com.example.todolist.data.Todo
 import com.example.todolist.utils.Constants.LIMIT
 import com.example.todolist.utils.Constants.TODO_COLLECTION
@@ -10,7 +11,7 @@ import com.example.todolist.data.TodoListLiveData
 import com.example.todolist.interfaces.OnLastTodoReachedCallback
 import com.example.todolist.interfaces.OnLastVisibleTodoCallback
 import com.example.todolist.interfaces.TodoListRepository
-import com.example.todolist.utils.Constants.TODO_DATE_PROPERTY
+import com.example.todolist.utils.Constants.TODO_TIMESTAMP_PROPERTY
 import com.example.todolist.utils.Constants.TODO_DESCRIPTION_PROPERTY
 import com.example.todolist.utils.Constants.TODO_ICON_URL_PROPERTY
 import com.example.todolist.utils.Constants.TODO_ID_PROPERTY
@@ -18,9 +19,6 @@ import com.example.todolist.utils.Response
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query.Direction.ASCENDING
-import com.google.firebase.firestore.Query.Direction.DESCENDING
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 class FirestoreTodoListRepository(private val firestore: FirebaseFirestore) : TodoListRepository, OnLastVisibleTodoCallback,
     OnLastTodoReachedCallback {
@@ -35,7 +33,7 @@ class FirestoreTodoListRepository(private val firestore: FirebaseFirestore) : To
 
         val collectionReference = firestore.collection(TODO_COLLECTION)
         var query = collectionReference.orderBy(
-            TODO_DATE_PROPERTY,
+            TODO_TIMESTAMP_PROPERTY,
             ASCENDING
         ).limit(LIMIT.toLong())
 
@@ -45,6 +43,7 @@ class FirestoreTodoListRepository(private val firestore: FirebaseFirestore) : To
         if (lastVisibleTodo != null) {
             query = query.startAfter(lastVisibleTodo)
         }
+
         return TodoListLiveData(query, this, this)
     }
 
@@ -68,7 +67,7 @@ class FirestoreTodoListRepository(private val firestore: FirebaseFirestore) : To
             TODO_ID_PROPERTY to todo.id,
             TODO_TITLE_PROPERTY to todo.title,
             TODO_DESCRIPTION_PROPERTY to todo.description,
-            TODO_DATE_PROPERTY to todo.timestamp,
+            TODO_TIMESTAMP_PROPERTY to todo.timestamp,
             TODO_ICON_URL_PROPERTY to todo.iconUrl
         )
 
@@ -107,7 +106,7 @@ class FirestoreTodoListRepository(private val firestore: FirebaseFirestore) : To
             TODO_ID_PROPERTY to todo.id,
             TODO_TITLE_PROPERTY to todo.title,
             TODO_DESCRIPTION_PROPERTY to todo.description,
-            TODO_DATE_PROPERTY to todo.timestamp,
+            TODO_TIMESTAMP_PROPERTY to todo.timestamp,
             TODO_ICON_URL_PROPERTY to todo.iconUrl
         )
 
