@@ -51,7 +51,7 @@
         android:id="@+id/addTodo_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="Add todo"
+        android:contentDescription="@string/todo_list_fab_add_todo"
         android:src="@drawable/ic_add"
         app:layout_constraintBottom_toTopOf="@id/guideline_bottom"
         app:layout_constraintEnd_toStartOf="@id/guideline_end" />

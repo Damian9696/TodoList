@@ -25,6 +25,7 @@
     <string name="todo_list_todo_deleted">Todo has been deleted</string>
     <string name="todo_list_delete_todo_question_title">Are you sure you want to delete %1$s?</string>
     <string name="todo_list_title">All todo</string>
+    <string name="todo_list_fab_add_todo">Add todo</string>
 
     <!--Hint-->
     <string name="hint_title">Title</string>
