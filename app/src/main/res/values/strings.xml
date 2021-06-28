@@ -8,14 +8,13 @@
     <!-- Validation-->
     <string name="validation_text_is_too_long">Text is too long</string>
     <string name="validation_empty_field">The field cannot be empty</string>
-    <string name="response_todo_added">Todo has been added</string>
-    <string name="response_todo_not_added">Todo has not been added</string>
 
     <!--Configure Todo-->
     <string name="configure_todo_title_create">Create new todo</string>
     <string name="configure_todo_button_add">Add</string>
     <string name="configure_todo_title_update">Update todo</string>
     <string name="configure_todo_button_update">Update</string>
+    <string name="configure_todo_response_success">Success</string>
 
     <!--TodoList-->
     <string name="todo_list_dialog_title_delete">Delete todo</string>

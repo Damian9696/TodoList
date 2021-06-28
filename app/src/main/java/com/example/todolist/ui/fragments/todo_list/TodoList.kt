@@ -9,6 +9,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todolist.MainActivity
@@ -82,7 +83,7 @@ class TodoList : Fragment() {
                 super.onScrolled(recyclerView, dx, dy)
 
                 val layoutManager =
-                    binding.listOfTodoRecyclerView.layoutManager as LinearLayoutManager
+                    binding.listOfTodoRecyclerView.layoutManager as GridLayoutManager
                 val firstVisibleTodoPosition = layoutManager.findFirstVisibleItemPosition()
                 val visibleTodoCount = layoutManager.childCount
                 val totalTodoCount = layoutManager.itemCount

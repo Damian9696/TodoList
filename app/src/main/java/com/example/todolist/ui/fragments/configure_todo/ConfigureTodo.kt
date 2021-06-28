@@ -184,7 +184,7 @@ class ConfigureTodo : Fragment() {
                 binding.progressBar.isVisible = false
                 Snackbar.make(
                     requireView(),
-                    getString(R.string.response_todo_added),
+                    getString(R.string.configure_todo_response_success),
                     Snackbar.LENGTH_LONG
                 )
                     .show()
