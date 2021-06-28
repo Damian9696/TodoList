@@ -20,8 +20,8 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query.Direction.ASCENDING
 
-class FirestoreTodoListRepository(private val firestore: FirebaseFirestore) : TodoListRepository, OnLastVisibleTodoCallback,
-    OnLastTodoReachedCallback {
+class FirestoreTodoListRepository(private val firestore: FirebaseFirestore) :
+    BaseFirestoreTodoListRepository(firestore) {
 
     private var isLastTodoReached = false
     private var lastVisibleTodo: DocumentSnapshot? = null
@@ -153,3 +153,7 @@ class FirestoreTodoListRepository(private val firestore: FirebaseFirestore) : To
         this.isLastTodoReached = isLastTodoReached
     }
 }
+
+abstract class BaseFirestoreTodoListRepository(private val firestore: FirebaseFirestore) :
+    TodoListRepository, OnLastVisibleTodoCallback,
+    OnLastTodoReachedCallback {}

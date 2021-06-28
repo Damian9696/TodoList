@@ -2,6 +2,7 @@ package com.example.todolist.view_models
 
 import androidx.lifecycle.*
 import com.example.todolist.data.Todo
+import com.example.todolist.data.repository.BaseFirestoreTodoListRepository
 import com.example.todolist.data.repository.FirestoreTodoListRepository
 import com.example.todolist.utils.enums.ConfigureAction
 import com.example.todolist.utils.Response
@@ -11,7 +12,7 @@ import com.example.todolist.utils.zipLiveData
 
 class ConfigureTodoViewModel(
     private val savedStateHandle: SavedStateHandle,
-    private val firestoreTodoListRepository: FirestoreTodoListRepository,
+    private val baseFirestoreTodoListRepository: BaseFirestoreTodoListRepository,
 ) : ViewModel() {
 
     private val todoForUpdateArgs: Todo
@@ -48,7 +49,7 @@ class ConfigureTodoViewModel(
     }
 
     fun addTodo(title: String, description: String, iconUrl: String): LiveData<Response<Todo>> {
-        return firestoreTodoListRepository.addTodo(title, description, iconUrl)
+        return baseFirestoreTodoListRepository.addTodo(title, description, iconUrl)
     }
 
     fun updateTodo(
@@ -56,7 +57,7 @@ class ConfigureTodoViewModel(
         description: String,
         iconUrl: String
     ): LiveData<Response<Todo>> {
-        return firestoreTodoListRepository.updateTodo(
+        return baseFirestoreTodoListRepository.updateTodo(
             todoForUpdateArgs.id!!,
             title,
             description,

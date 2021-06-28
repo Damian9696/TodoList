@@ -34,7 +34,7 @@
             app:popUpToInclusive="true" />
         <argument
             android:name="configureAction"
-            app:argType="com.example.todolist.utils.ConfigureAction" />
+            app:argType="com.example.todolist.utils.enums.ConfigureAction" />
         <argument
             android:name="todo"
             app:argType="com.example.todolist.data.Todo" />

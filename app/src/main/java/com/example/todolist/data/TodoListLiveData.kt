@@ -12,7 +12,7 @@ class TodoListLiveData(
     private val query: Query,
     private val onLastVisibleTodoCallback: OnLastVisibleTodoCallback,
     private val onLastTodoReachedCallback: OnLastTodoReachedCallback
-) : LiveData<Operation>(), EventListener<QuerySnapshot> {
+) : BaseTodoListLiveData() {
 
     private lateinit var listenerRegistration: ListenerRegistration
 
@@ -47,3 +47,5 @@ class TodoListLiveData(
 
     }
 }
+
+abstract class BaseTodoListLiveData : LiveData<Operation>(), EventListener<QuerySnapshot> {}

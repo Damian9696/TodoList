@@ -1,5 +1,6 @@
 package com.example.todolist.di
 
+import com.example.todolist.data.repository.BaseFirestoreTodoListRepository
 import com.example.todolist.data.repository.FirestoreTodoListRepository
 import com.example.todolist.view_models.ConfigureTodoViewModel
 import com.example.todolist.view_models.TodoListViewModel
@@ -10,7 +11,7 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { Firebase.firestore }
-    factory { FirestoreTodoListRepository(get()) }
+    factory<BaseFirestoreTodoListRepository> { FirestoreTodoListRepository(get()) }
 }
 
 val todoListViewModelModule = module {
