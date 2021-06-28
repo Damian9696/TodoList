@@ -1,4 +1,4 @@
-package com.example.todolist.ui.fragments
+package com.example.todolist.ui.fragments.todo_list
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +11,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.todolist.MainActivity
+import com.example.todolist.R
 import com.example.todolist.adapters.TodoAdapter
 import com.example.todolist.adapters.TodoRowListener
 import com.example.todolist.data.Todo
@@ -40,6 +42,16 @@ class TodoList : Fragment() {
     private val listOfTodo = mutableListOf<Todo>()
 
     private var isScrolling = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        initActionBar()
+    }
+
+    private fun initActionBar() {
+        (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        (activity as MainActivity).supportActionBar?.title = getString(R.string.todo_list_title)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -93,27 +105,19 @@ class TodoList : Fragment() {
         todoListViewModel.response.observe(viewLifecycleOwner) {
             it?.let { resource ->
                 when (resource) {
-                    is Response.Loading -> {
-                        binding.progressBar.isVisible = true
-                    }
+                    is Response.Loading -> binding.progressBar.isVisible = true
                     is Response.Error -> {
                         binding.progressBar.isVisible = false
-                        Snackbar.make(
-                            requireView(),
-                            "Error ${resource.message}",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(getString(R.string.global_error))
+                            .setMessage("${resource.message}")
+                            .setPositiveButton(getString(R.string.todo_list_dialog_positive_button)) { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            .show()
                     }
-                    is Response.Success -> {
-                        binding.progressBar.isVisible = false
-                        Snackbar.make(
-                            requireView(),
-                            "Success ${resource.data!!.title} removed!",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-                    }
+                    is Response.Success -> binding.progressBar.isVisible = false
                 }
-
             }
         }
     }
@@ -184,15 +188,20 @@ class TodoList : Fragment() {
                 }
                 LONG_CLICK -> {
                     MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("Delete todo")
-                        .setMessage("Are you sure you want to delete ${todo.title}?")
-                        .setNeutralButton("Cancel") { dialog, _ ->
+                        .setTitle(getString(R.string.todo_list_dialog_title_delete))
+                        .setMessage(
+                            getString(
+                                R.string.todo_list_delete_todo_question_title,
+                                todo.title
+                            )
+                        )
+                        .setNeutralButton(getString(R.string.todo_list_dialog_cancel_button)) { dialog, _ ->
                             dialog.dismiss()
                         }
-                        .setNegativeButton("Decline") { dialog, _ ->
+                        .setNegativeButton(getString(R.string.todo_list_dialog_negative_button)) { dialog, _ ->
                             dialog.dismiss()
                         }
-                        .setPositiveButton("Yes") { dialog, _ ->
+                        .setPositiveButton(getString(R.string.todo_list_dialog_positive_button)) { dialog, _ ->
                             todoListViewModel.deleteTodo(todo).observe(viewLifecycleOwner) {
                                 it?.let { response ->
                                     handleResponse(response)
@@ -214,16 +223,21 @@ class TodoList : Fragment() {
             }
             is Response.Success -> {
                 binding.progressBar.isVisible = false
-                Snackbar.make(requireView(), "Todo deleted!", Snackbar.LENGTH_LONG)
+                Snackbar.make(
+                    requireView(),
+                    getString(R.string.todo_list_todo_deleted),
+                    Snackbar.LENGTH_LONG
+                )
                     .show()
             }
             is Response.Error -> {
                 binding.progressBar.isVisible = false
-                Snackbar.make(
-                    requireView(),
-                    "Todo not deleted! ${todoResponse.message}",
-                    Snackbar.LENGTH_LONG
-                )
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(getString(R.string.global_error))
+                    .setMessage("${todoResponse.message}")
+                    .setPositiveButton(getString(R.string.todo_list_dialog_positive_button)) { dialog, _ ->
+                        dialog.dismiss()
+                    }
                     .show()
             }
         }
@@ -244,5 +258,4 @@ class TodoList : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
 }

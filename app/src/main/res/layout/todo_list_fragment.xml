@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.fragments.TodoList">
+    tools:context=".ui.fragments.todo_list.TodoList">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_start"
@@ -34,16 +34,6 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="16dp" />
 
-    <TextView
-        android:id="@+id/title_textView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="List of todo"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@id/guideline_start"
-        app:layout_constraintTop_toBottomOf="@id/guideline_top" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/listOfTodo_recyclerView"
         android:layout_width="0dp"
@@ -54,7 +44,7 @@
         app:layout_constraintBottom_toTopOf="@id/guideline_bottom"
         app:layout_constraintEnd_toStartOf="@id/guideline_end"
         app:layout_constraintStart_toEndOf="@id/guideline_start"
-        app:layout_constraintTop_toBottomOf="@id/title_textView"
+        app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/todo_row_layout" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
